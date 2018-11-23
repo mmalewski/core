@@ -190,6 +190,11 @@ class File extends Node implements IFile, IFileNode {
 				}
 				throw new FileLocked($e->getMessage(), $e->getCode(), $e);
 			}
+
+			if (!$partStorage->isCreatable($internalPartPath)) {
+				throw new ForbiddenException("You have no permission to upload files here.", false);
+			}
+
 			$target = $partStorage->fopen($internalPartPath, 'wb');
 			if (!\is_resource($target)) {
 				\OCP\Util::writeLog('webdav', '\OC\Files\Filesystem::fopen() failed', \OCP\Util::ERROR);
