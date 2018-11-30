@@ -187,6 +187,21 @@ pipeline:
       matrix:
         TEST_SUITE: phpunit
 
+  phpunit_testhelpers:
+    image: owncloudci/php:${PHP_VERSION}
+    pull: true
+    group: test
+    environment:
+      - PHP_VERSION=${PHP_VERSION}
+      - DB_TYPE=${DB_TYPE}
+      - FILES_EXTERNAL_TYPE=${FILES_EXTERNAL_TYPE}
+      - COVERAGE=${COVERAGE}
+    commands:
+      - make test-testhelpers-unit
+    when:
+      matrix:
+        TEST_SUITE: phpunit_testhelpers
+
   test-javascript:
     image: owncloudci/php:${PHP_VERSION}
     pull: true
@@ -731,6 +746,9 @@ matrix:
       DB_TYPE: sqlite
       INSTALL_SERVER: true
       FILES_EXTERNAL_TYPE: swift
+
+    - PHP_VERSION: 7.1
+      TEST_SUITE: phpunit_testhelpers
 
   # API Acceptance tests
     - PHP_VERSION: 7.1

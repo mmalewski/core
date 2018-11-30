@@ -45,7 +45,6 @@ PHPSTAN_BIN=build/phpstan.phar
 TEST_DATABASE=sqlite
 TEST_EXTERNAL_ENV=smb-silvershell
 TEST_PHP_SUITE=
-
 RELEASE_CHANNEL=git
 
 # internal aliases
