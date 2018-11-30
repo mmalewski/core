@@ -181,9 +181,9 @@ trait BasicStructure {
 	private $requestToken;
 
 	/**
-	 * @var string
+	 * @var array
 	 */
-	private $storageId = null;
+	private $storageIds = [];
 
 	/**
 	 * The local source IP address from which to initiate API actions.
@@ -542,12 +542,21 @@ trait BasicStructure {
 	}
 
 	/**
-	 * @return string|null
+	 * @return array|null
 	 */
-	public function getStorageId() {
-		return $this->storageId;
+	public function getStorageIds() {
+		return $this->storageIds;
 	}
-	
+
+	/**
+	 * @param integer $storageId
+	 *
+	 * @return void
+	 */
+	public function addStorageIds($storageId) {
+		\array_push($this->storageIds, $storageId);
+	}
+
 	/**
 	 * @param string $sourceIpAddress
 	 *
@@ -2174,26 +2183,12 @@ trait BasicStructure {
 			$this->getBaseUrl(),
 			$this->getOcPath()
 		);
-		SetupHelper::mkDirOnServer(
-			LOCAL_STORAGE_DIR_ON_REMOTE_SERVER
-		);
-		$result = SetupHelper::runOcc(
-			[
-				'files_external:create',
-				'local_storage',
-				'local',
-				'null::null',
-				'-c',
-				'datadir=' . $this->getServerRoot() . '/' . LOCAL_STORAGE_DIR_ON_REMOTE_SERVER
-			]
-		);
-		// stdOut should have a string like "Storage created with id 65"
-		$storageIdWords = \explode(" ", \trim($result['stdOut']));
-		$this->storageId = $storageIdWords[4];
+		$storageId = SetupHelper::createLocalStoragaeMount("local_storage");
+		$this->addStorageIds($storageId);
 		SetupHelper::runOcc(
 			[
 				'files_external:option',
-				$this->storageId,
+				$storageId,
 				'enable_sharing',
 				'true'
 			]
@@ -2221,18 +2216,17 @@ trait BasicStructure {
 	 * @return void
 	 */
 	public function removeLocalStorageAfter() {
-		if ($this->storageId !== null) {
-			SetupHelper::runOcc(
-				[
-					'files_external:delete',
-					'-y',
-					$this->storageId
-				]
-			);
+		if ($this->storageIds !== null) {
+			foreach ($this->storageIds as $storageId) {
+				SetupHelper::runOcc(
+					[
+						'files_external:delete',
+						'-y',
+						$storageId
+					]
+				);
+			}
 		}
-		SetupHelper::rmDirOnServer(
-			LOCAL_STORAGE_DIR_ON_REMOTE_SERVER
-		);
 		SetupHelper::rmDirOnServer(
 			TEMPORARY_STORAGE_DIR_ON_REMOTE_SERVER
 		);
