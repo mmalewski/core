@@ -150,11 +150,14 @@ class Directory extends Node implements ICollection, IQuota, IMoveTarget {
 				}
 			} elseif (FutureFile::isFutureFile()) {
 				// Future file (chunked upload) requires fileinfo
+				if (!$this->fileView->isCreatable($this->path)) {
+					throw new SabreForbidden();
+				}
 				$info = $this->fileView->getFileInfo($this->path . '/' . $name);
-			}
-
-			if (!$this->fileView->isCreatable($this->path)) {
-				throw new SabreForbidden();
+			} else {
+				if (!$this->fileView->isCreatable($this->path)) {
+					throw new SabreForbidden();
+				}
 			}
 
 			$this->fileView->verifyPath($this->path, $name);
