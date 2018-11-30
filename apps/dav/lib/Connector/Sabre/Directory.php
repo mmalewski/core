@@ -167,6 +167,10 @@ class Directory extends Node implements ICollection, IQuota, IMoveTarget {
 				$info = new FileInfo($path, null, null, [], null);
 			}
 
+			if (!$this->fileView->isCreatable($path)) {
+				throw new SabreForbidden();
+			}
+
 			$node = new File($this->fileView, $info);
 			$node->acquireLock(ILockingProvider::LOCK_SHARED);
 			return $node->put($data);
